@@ -1,0 +1,378 @@
+<!--The content below is only a placeholder and can be replaced.-->
+<div class="container">
+
+  <div class="row">
+    <div class="col-md-8">
+        <h3>Clientes</h3>
+    </div>
+    <div class="col-md-4" style="margin-top:1%">
+      <div class="col-md-3">
+        <label style="padding: 0%;">API Key</label>
+      </div>
+      <div class="col-md-9">
+        <input required [(ngModel)]="apiKey" #Key="ngModel" [ngStyle]="{'border-color': apiKeyError ? 'red' : '' }" type="text" class="form-control" placeholder="Token" style="padding: 0%; width: 104%;">
+        <div *ngIf="Key.errors" style="color: red">
+            El token de seguridad es requerido
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row" style="margin-top: 2%;">
+    <div class="col-md-3">
+        <label class="col-md-4">Número</label>
+        <input [(ngModel)]="number" type = "text" class="form-control" style="width: 50%" id="inputCodigo" placeholder="Número Cliente">
+    </div>
+    <div class="col-md-3">
+        <label class="col-md-4">Nombre Cliente</label>
+        <input [(ngModel)]="name" type = "text" class="form-control" style="width: 50%" id="nombre" placeholder="Nombre Cliente">
+    </div>
+    <div class="col-md-3">
+        <label class="col-md-4">RFC</label>
+        <input [(ngModel)]="rfc" type = "text" class="form-control" style="width: 50%" id="rfc" placeholder="RFC">
+    </div>
+    <div class="col-md-3">
+        <button data-toggle="tooltip" title="Mostrar Clientes" (click)="confirmClients()" class="btn btn-primary pull-right">Buscar</button>
+    </div>
+  </div>
+
+  <ng2-toasty [position]="'top-right'"></ng2-toasty>
+
+  <div class="row" style="margin-top: 2%;">
+    <div class="col pull-right">
+      <i class="fa fa-plus pull-right" data-toggle="tooltip" title="Agregar Cliente" aria-hidden="true" (click)="addCustomer()" style="color: green; margin-top: 80%; cursor: pointer;"></i>
+    </div>
+    <div class="col pull-right" style="margin-right: 1%;">
+        <button *ngIf="existChecked" class="btn btn-danger pull-right" (click)="onDeleteCustomers()">
+            Eliminar Seleccionados
+        </button>
+    </div>
+  </div>
+
+  <div class="row"></div>
+
+
+
+  <div class="row" style="margin-top: 2%">
+      <table id="table" class="table table-striped" >
+        <thead>
+            <tr>
+                <th>
+                  <input style="cursor: pointer;" type="checkbox" data-toggle="tooltip" title="Seleccionar todos los clientes" [disabled]="!existClientsToShow" [(ngModel)]="allChecked" (change) = onSelectAllCheckbox()>
+                </th>
+                <th>
+                  Número
+                </th>
+                <th>
+                  Nombre Cliente
+                </th>
+                <th>
+                  Nombre Legal
+                </th>
+                <th>
+                  RFC
+                </th>
+                <th>
+
+                </th>
+              </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor='let client of clients.value;'>
+            <td>
+                <input type="checkbox" [checked]= "allChecked" [(ngModel)]="client.CheckBox" (change)="onCheck(client.CheckBox)" [disabled]="isProcessing" style="cursor: pointer;">
+            </td>
+            <td>
+              {{client.Number}}
+            </td>
+            <td>
+              {{client.ClientName}}
+            </td>
+            <td>
+              {{client.LegalName}}
+            </td>
+            <td>
+              {{client.RFC}}
+            </td>
+            <td>
+                <i data-toggle="tooltip" (click)="onEditCustomer(client.ID)" title="Editar cliente" class="far fa-edit" style="margin-right: 10%; cursor: pointer;"></i>
+                <i data-toggle="tooltip" title="Eliminar cliente" class="fas fa-times" style="color: red; cursor: pointer;" (click)="onDeleteCustomer(client.ID)"></i>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+  </div>
+
+  <div class="row" >
+    <div class="modal" id="AddModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document" id="modelDialog">
+          <div class="modal-content" id="modalContent">
+            <div class="modal-header">
+              <div class="col-md-6">
+                <h3 class="modal-title">Agregar Cliente</h3>
+              </div>
+              <div col-md-6>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+            </div>
+            <div class="modal-body">
+              <div class="row">
+                <div class="col-md-12">
+                  <h4>Información de Cuenta</h4>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-3">
+                  <div class="col-md-4">
+                    <label>Nombre Legal</label>
+                  </div>
+                  <div class="col-md-8">
+                    <input type="text" [(ngModel)]="Client.LegalName" [ngStyle]="{'border-color': ClientFieldsErrors.LegalName ? 'red' : '' }" class="form-control" placeholder="Nombre Legal" required>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="col-md-4">
+                    <label>Nombre Comercial</label>
+                  </div>
+                  <div class="col-md-8">
+                    <input type="text" [(ngModel)]="Client.CommercialName" [ngStyle]="{'border-color': ClientFieldsErrors.CommercialName ? 'red' : '' }" class="form-control" placeholder="Nombre Comercial" required>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="col-md-2">
+                    <label>RFC</label>
+                  </div>
+                  <div class="col-md-10">
+                    <input type="text" [(ngModel)]="Client.RFC" [ngStyle]="{'border-color': ClientFieldsErrors.RFC ? 'red' : '' }" class="form-control" placeholder="RFC" required>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="col-md-4">
+                    <label>Dias de Credito</label>
+                  </div>
+                  <div class="col-md-8">
+                    <input type="text" [(ngModel)]="Client.CreditDays" [ngStyle]="{'border-color': ClientFieldsErrors.CreditDays ? 'red' : '' }" class="form-control" placeholder="Dias de Credito" required>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-3">
+                  <div class="col-md-4">
+                    <label>Monto de Crédito</label>
+                  </div>
+                  <div class="col-md-8">
+                    <input type="text" [(ngModel)]="Client.CreditAmount" [ngStyle]="{'border-color': ClientFieldsErrors.CreditAmount ? 'red' : '' }" class="form-control" placeholder="Monto de Crédito" required>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="col-md-4">
+                    <label>Lista de precios</label>
+                  </div>
+                  <div class="col-md-8">
+                    <select name="PriceList" class="form-control" [(ngModel)]="Client.PriceListID" [ngStyle]="{'border-color': ClientFieldsErrors.PriceListID ? 'red' : '' }">
+                      <option *ngFor="let price of priceList.value;" [ngValue]="price.ID">
+                        {{price.Name}}
+                      </option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="col-md-2">
+                    <label>Cuenta</label>
+                  </div>
+                  <div class="col-md-10">
+                    <select name="AccountList" class="form-control" [(ngModel)]="Client.AccountingNumber" [ngStyle]="{'border-color': ClientFieldsErrors.AccountingNumber ? 'red' : '' }">
+                      <option *ngFor="let account of accountsList.value;" [ngValue]="account.Number">
+                        {{account.Number}}
+                      </option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <hr>
+
+              <div class="row">
+                <div class="col-md-12">
+                  <h4>Ubicación</h4>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-3">
+                  <div class="col-md-4">
+                    <label>Calle</label>
+                  </div>
+                  <div class="col-md-8">
+                    <input type="text" [(ngModel)]="Client.Address.StreetName" [ngStyle]="{'border-color': ClientFieldsErrors.StreetName ? 'red' : '' }" class="form-control" placeholder="Calle" required>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="col-md-4">
+                    <label>Número interior</label>
+                  </div>
+                  <div class="col-md-8">
+                    <input type="text" [(ngModel)]="Client.Address.InteriorNumber" [ngStyle]="{'border-color': ClientFieldsErrors.InteriorNumber ? 'red' : '' }" class="form-control" placeholder="Número interior" required>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="col-md-4">
+                    <label>Número Exterior</label>
+                  </div>
+                  <div class="col-md-8">
+                    <input type="text" [(ngModel)]="Client.Address.ExteriorNumber" [ngStyle]="{'border-color': ClientFieldsErrors.ExteriorNumber ? 'red' : '' }" class="form-control" placeholder="Número Exterior" required>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="col-md-4">
+                    <label>Colonia</label>
+                  </div>
+                  <div class="col-md-8">
+                    <input type="text" [(ngModel)]="Client.Address.Colonia" [ngStyle]="{'border-color': ClientFieldsErrors.Colonia ? 'red' : '' }" class="form-control" placeholder="Colonia" required>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-3">
+                  <div class="col-md-4">
+                    <label>Código Postal</label>
+                  </div>
+                  <div class="col-md-8">
+                    <input type="text" [(ngModel)]="Client.Address.ZipCode" [ngStyle]="{'border-color': ClientFieldsErrors.ZipCode ? 'red' : '' }" class="form-control" placeholder="Código Postal">
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="col-md-4">
+                    <label>Ciudad</label>
+                  </div>
+                  <div class="col-md-8">
+                    <input type="text" [(ngModel)]="Client.Address.City" [ngStyle]="{'border-color': ClientFieldsErrors.City ? 'red' : '' }" class="form-control" placeholder="Ciudad">
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="col-md-4">
+                    <label>Estado</label>
+                  </div>
+                  <div class="col-md-8">
+                    <input type="text" [(ngModel)]="Client.Address.State" [ngStyle]="{'border-color': ClientFieldsErrors.State ? 'red' : '' }" class="form-control" placeholder="Estado">
+                  </div>
+                </div>
+              </div>
+
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-primary" (click)="onSaveClient()" [disabled]="isProcessing">Agregar Cliente</button>
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+  </div>
+
+  <div class="row" >
+      <div class="modal" id="EditModal" tabindex="-1" role="dialog">
+          <div class="modal-dialog" role="document" id="modelDialog">
+            <div class="modal-content" id="modalContent">
+              <div class="modal-header">
+                <div class="col-md-6">
+                  <h3 class="modal-title">Editar Cliente</h3>
+                </div>
+                <div col-md-6>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+              </div>
+              <div class="modal-body">
+                <div class="row">
+                  <div class="col-md-12">
+                    <h4>Información de Cuenta</h4>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md-3">
+                    <div class="col-md-4">
+                      <label>Nombre Legal</label>
+                    </div>
+                    <div class="col-md-8">
+                      <input type="text" [(ngModel)]="clientDetails.LegalName" [ngStyle]="{'border-color': ClientFieldsErrors.LegalName ? 'red' : '' }" class="form-control" placeholder="Nombre Legal" required>
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="col-md-4">
+                      <label>Nombre Comercial</label>
+                    </div>
+                    <div class="col-md-8">
+                      <input type="text" [(ngModel)]="clientDetails.CommercialName" [ngStyle]="{'border-color': ClientFieldsErrors.CommercialName ? 'red' : '' }" class="form-control" placeholder="Nombre Comercial" required>
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="col-md-2">
+                      <label>RFC</label>
+                    </div>
+                    <div class="col-md-10">
+                      <input type="text" [(ngModel)]="clientDetails.RFC" [ngStyle]="{'border-color': ClientFieldsErrors.RFC ? 'red' : '' }" class="form-control" placeholder="RFC" required>
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="col-md-4">
+                      <label>Dias de Credito</label>
+                    </div>
+                    <div class="col-md-8">
+                      <input type="text" [(ngModel)]="clientDetails.CreditDays" [ngStyle]="{'border-color': ClientFieldsErrors.CreditDays ? 'red' : '' }" class="form-control" placeholder="Dias de Credito" required>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md-3">
+                    <div class="col-md-4">
+                      <label>Monto de Crédito</label>
+                    </div>
+                    <div class="col-md-8">
+                      <input type="text" [(ngModel)]="clientDetails.CreditAmount" [ngStyle]="{'border-color': ClientFieldsErrors.CreditAmount ? 'red' : '' }" class="form-control" placeholder="Monto de Crédito" required>
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="col-md-4">
+                      <label>Lista de precios</label>
+                    </div>
+                    <div class="col-md-8">
+                      <select name="PriceList" class="form-control" [(ngModel)]="clientDetails.PriceListID" [ngStyle]="{'border-color': ClientFieldsErrors.PriceListID ? 'red' : '' }">
+                        <option *ngFor="let price of priceList.value;" [ngValue]="price.ID">
+                          {{price.Name}}
+                        </option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="col-md-2">
+                      <label>Cuenta</label>
+                    </div>
+                    <div class="col-md-10">
+                      <select name="AccountList" class="form-control" [(ngModel)]="clientDetails.Account" [ngStyle]="{'border-color': ClientFieldsErrors.AccountingNumber ? 'red' : '' }">
+                        <option *ngFor="let account of accountsList.value;" [ngValue]="account.Number">
+                          {{account.Number}}
+                        </option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-primary" (click)="onSaveEditClient()" [disabled]="isProcessing">Guardar Cambios</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+    </div>
+
+</div>
+
+
